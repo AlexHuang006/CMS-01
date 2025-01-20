@@ -1,3 +1,119 @@
+<script setup>
+import { User, Lock, ArrowLeftBold, ArrowRightBold} from '@element-plus/icons-vue'
+import { ref } from 'vue'
+
+const isRegister = ref(false)
+</script>
+
+
 <template>
-  登录
+<!-- el-row代表一整行，并分成24份 -->
+  <el-row class="login-page">
+    <!-- el-col代表一列，:span表示占了12份 -->
+    <el-col :span="12" class="bg"></el-col>
+    <el-col :span="6" :offset="3" class="form">
+
+      <!-- 注册表单 -->
+      <el-form :model = "formModel" ref="form" size="large" autocomplete="off" v-if="isRegister">
+        <el-form-item>
+          <h1>Register</h1>
+        </el-form-item>
+        <el-form-item>
+          <el-input :prefix-icon="User" placeholder="Enter your email or phone"></el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-input
+            :prefix-icon="Lock"
+            type="password"
+            placeholder="Enter your password"
+          ></el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-input
+            :prefix-icon="Lock"
+            type="password"
+            placeholder="Enter your password again"
+          ></el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-button class="button" type="primary" auto-insert-space>
+            Continue
+          </el-button>
+        </el-form-item>
+        <el-form-item class="flex">
+          <el-link type="info" :underline="false" @click="isRegister = false">
+            <el-icon>
+              <ArrowLeftBold />
+            </el-icon>
+            Back
+          </el-link>
+        </el-form-item>
+      </el-form>
+
+      <!-- 登录表单 -->
+      <el-form ref="form" size="large" autocomplete="off" v-else>
+        <el-form-item>
+          <h1>Sign In</h1>
+        </el-form-item>
+        <el-form-item>
+          <el-input :prefix-icon="User" placeholder="Enter your email or phone"></el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-input
+            name="password"
+            :prefix-icon="Lock"
+            type="password"
+            placeholder="Enter your password"
+          ></el-input>
+        </el-form-item>
+        <el-form-item class="flex">
+          <div class="flex">
+            <el-checkbox>Remember me</el-checkbox>
+            <el-link type="primary" :underline="false">Forget paswword?</el-link>
+          </div>
+        </el-form-item>
+        <el-form-item>
+          <el-button class="button" type="primary" auto-insert-space>Continue</el-button>
+        </el-form-item>
+        <el-form-item class="flex">
+          <el-link type="info" :underline="false" @click="isRegister = true">
+            Register
+            <el-icon>
+              <ArrowRightBold />
+            </el-icon>
+          </el-link>
+        </el-form-item>
+      </el-form>
+
+    </el-col>
+  </el-row>
 </template>
+
+<style lang="scss" scoped>
+  .login-page {
+    height: 100vh;
+    background-color: #fff;
+    .bg {
+      background: url('@/assets/logo2.png') no-repeat 60% center / 240px auto,
+        url('@/assets/login_bg.jpg') no-repeat center / cover;
+      border-radius: 0 20px 20px 0;
+    }
+    .form {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      user-select: none;
+      .title {
+        margin: 0 auto;
+      }
+      .button {
+        width: 100%;
+      }
+      .flex {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+      }
+    }
+  }
+</style>
