@@ -3,7 +3,10 @@
 </script>
 
 <template>
-  <div>APP</div>
+  <div>
+    APP
+    <router-view></router-view>
+  </div>
 </template>
 
 <style scoped>
