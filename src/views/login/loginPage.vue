@@ -1,8 +1,61 @@
 <script setup>
 import { User, Lock, ArrowLeftBold, ArrowRightBold} from '@element-plus/icons-vue'
 import { ref } from 'vue'
+import { userRegisterService } from '@/api/user.js'
 
 const isRegister = ref(false)
+
+// 1. 注册
+const formModel = ref({
+  username: '',
+  password: '',
+  repassword: ''
+})
+
+// 1.1 注册表单校验规则
+const rules = {
+  username: [
+    { required: true, message: 'Enter your username', trigger: 'blur' },
+    { min: 5, max: 10, message: 'Username must be 5-10 characters long', trigger: 'blur' }
+  ],
+  password: [
+    { required: true, message: 'Enter your password', trigger: 'blur' },
+    {
+      pattern: /^\S{6,15}$/,
+      message: 'Password must be 6-15 non-empty characters',
+      trigger: 'blur'
+    }
+  ],
+  repassword: [
+    { required: true, message: 'Enter your password again', trigger: 'blur' },
+    {
+      pattern: /^\S{6,15}$/,
+      message: 'Password must be 6-15 non-empty characters',
+      trigger: 'blur'
+    },
+    {
+      validator: (rule, value, callback) => {
+        if (value !== formModel.value.password) {
+          callback(new Error('Inconsistency between two password entries!'))
+        } else {
+          callback()
+        }
+      },
+      trigger: 'blur'
+    }
+  ]
+}
+
+// 1.2 请求注册前预校验
+const form = ref()
+
+// 1.3 注册方法
+const register = async () => {
+  await form.value.validate()
+  await userRegisterService(formModel.value)
+  ElMessage.success('Register Success')
+  isRegister.value = false
+}
 </script>
 
 
@@ -13,30 +66,32 @@ const isRegister = ref(false)
     <el-col :span="12" class="bg"></el-col>
     <el-col :span="6" :offset="3" class="form">
 
-      <!-- 注册表单 -->
-      <el-form :model = "formModel" ref="form" size="large" autocomplete="off" v-if="isRegister">
+      <!-- 1. 注册表单 -->
+      <el-form :model = "formModel" :rules = "rules" ref="form" size="large" autocomplete="off" v-if="isRegister">
         <el-form-item>
           <h1>Register</h1>
         </el-form-item>
-        <el-form-item>
-          <el-input :prefix-icon="User" placeholder="Enter your email or phone"></el-input>
+        <el-form-item prop = "username">
+          <el-input v-model = "formModel.username" :prefix-icon="User" placeholder="Enter your email or phone"></el-input>
         </el-form-item>
-        <el-form-item>
+        <el-form-item prop = "password">
           <el-input
+            v-model = "formModel.password"
             :prefix-icon="Lock"
             type="password"
             placeholder="Enter your password"
           ></el-input>
         </el-form-item>
-        <el-form-item>
+        <el-form-item prop = "repassword">
           <el-input
+            v-model = "formModel.repassword"
             :prefix-icon="Lock"
             type="password"
             placeholder="Enter your password again"
           ></el-input>
         </el-form-item>
         <el-form-item>
-          <el-button class="button" type="primary" auto-insert-space>
+          <el-button @click = "register" class="button" type="primary" auto-insert-space>
             Continue
           </el-button>
         </el-form-item>
@@ -50,7 +105,7 @@ const isRegister = ref(false)
         </el-form-item>
       </el-form>
 
-      <!-- 登录表单 -->
+      <!-- 2. 登录表单 -->
       <el-form ref="form" size="large" autocomplete="off" v-else>
         <el-form-item>
           <h1>Sign In</h1>
