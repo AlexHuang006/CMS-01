@@ -1,7 +1,9 @@
 <script setup>
 import { User, Lock, ArrowLeftBold, ArrowRightBold} from '@element-plus/icons-vue'
-import { ref } from 'vue'
-import { userRegisterService } from '@/api/user.js'
+import { ref, watch } from 'vue'
+import { userRegisterService, userLoginService } from '@/api/user.js'
+import { useUserStore } from '@/stores/index'
+import { useRouter } from 'vue-router'
 
 const isRegister = ref(false)
 
@@ -56,6 +58,26 @@ const register = async () => {
   ElMessage.success('Register Success')
   isRegister.value = false
 }
+
+//  切换时重置输入框
+watch(isRegister, () => {
+  formModel.value = {
+    username: '',
+    password: '',
+    repassword: ''
+  }
+})
+
+const userStore = useUserStore()
+const router = useRouter()
+// 2. 登录
+const login = async () => {
+  await form.value.validate()
+  const res = await userLoginService(formModel.value)
+  userStore.setToken(res.data.token)
+  ElMessage.success('Login Success')
+  router.push('/')
+}
 </script>
 
 
@@ -106,15 +128,16 @@ const register = async () => {
       </el-form>
 
       <!-- 2. 登录表单 -->
-      <el-form ref="form" size="large" autocomplete="off" v-else>
+      <el-form :model = "formModel" :rules = "rules" ref="form" size="large" autocomplete="off" v-else>
         <el-form-item>
           <h1>Sign In</h1>
         </el-form-item>
-        <el-form-item>
-          <el-input :prefix-icon="User" placeholder="Enter your email or phone"></el-input>
+        <el-form-item prop = "username">
+          <el-input v-model = "formModel.username" :prefix-icon="User" placeholder="Enter your email or phone"></el-input>
         </el-form-item>
-        <el-form-item>
+        <el-form-item prop = "password">
           <el-input
+            v-model = "formModel.password"
             name="password"
             :prefix-icon="Lock"
             type="password"
@@ -128,7 +151,7 @@ const register = async () => {
           </div>
         </el-form-item>
         <el-form-item>
-          <el-button class="button" type="primary" auto-insert-space>Continue</el-button>
+          <el-button @click = "login" class="button" type="primary" auto-insert-space>Continue</el-button>
         </el-form-item>
         <el-form-item class="flex">
           <el-link type="info" :underline="false" @click="isRegister = true">
