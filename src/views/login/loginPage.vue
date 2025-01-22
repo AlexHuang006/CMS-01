@@ -72,11 +72,13 @@ const userStore = useUserStore()
 const router = useRouter()
 // 2. 登录
 const login = async () => {
+  // const loading = ElLoading.service({ fullscreen: true })
   await form.value.validate()
   const res = await userLoginService(formModel.value)
   userStore.setToken(res.data.token)
   ElMessage.success('Login Success')
   router.push('/')
+  // loading.close()
 }
 </script>
 
