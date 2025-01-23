@@ -10,6 +10,35 @@ import {
   CaretBottom
 } from '@element-plus/icons-vue'
 import avatar from '@/assets/default.png'
+import { useUserStore } from '@/stores'
+import { onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+// import { ElMessageBox } from 'element-plus'
+
+const userStore = useUserStore()
+const router = useRouter()
+
+onMounted(() => {
+  userStore.getUser()
+})
+
+const handleCommand = async (key) => {
+  if (key === 'logout') {
+    // 退出
+    await ElMessageBox.confirm('Are you sure to LogOut', '温馨提示', {
+      type: 'warning',
+      confirmButtonText: '确认',
+      cancelButtonText: '取消'
+    })
+    // 清除本地数据（token + 用户信息）
+    userStore.removeToken()
+    userStore.setUser()
+    router.push('/login')
+  } else {
+    // 跳转页面
+    router.push(`/user/${key}`)
+  }
+}
 </script>
 
 <template>
@@ -58,10 +87,10 @@ import avatar from '@/assets/default.png'
 
       <!-- 2.1 右侧头部 -->
       <el-header>
-        <div>Software Engineering: <strong>Long Huang</strong></div>
-        <el-dropdown placement="bottom-end">
+        <div>User Name: <strong>{{ userStore.user.nickname || userStore.user.username }}</strong></div>
+        <el-dropdown placement="bottom-end" @command = "handleCommand">
           <span class="el-dropdown__box">
-            <el-avatar :src="avatar" />
+            <el-avatar :src="userStore.user.user_pic || avatar" />
             <el-icon><CaretBottom /></el-icon>
           </span>
           <template #dropdown>
