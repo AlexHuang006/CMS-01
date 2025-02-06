@@ -21,3 +21,10 @@ export const artDelChannelService = (id) => {
     params: { id }
   })
 }
+
+// 文章列表请求
+export const artGetListService = (params) => {
+  return request.get('/my/article/list', {
+    params 
+  })
+}

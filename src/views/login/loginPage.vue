@@ -6,6 +6,7 @@ import { useUserStore } from '@/stores/index'
 import { useRouter } from 'vue-router'
 
 const isRegister = ref(false)
+const loading = ref(false)
 
 // 1. 注册
 const formModel = ref({
@@ -74,8 +75,10 @@ const router = useRouter()
 const login = async () => {
   // const loading = ElLoading.service({ fullscreen: true })
   await form.value.validate()
+  loading.value = true
   const res = await userLoginService(formModel.value)
   userStore.setToken(res.data.token)
+  loading.value = false
   ElMessage.success('Login Success')
   router.push('/')
   // loading.close()
@@ -85,7 +88,7 @@ const login = async () => {
 
 <template>
 <!-- el-row代表一整行，并分成24份 -->
-  <el-row class="login-page">
+  <el-row class="login-page" v-loading = "loading">
     <!-- el-col代表一列，:span表示占了12份 -->
     <el-col :span="12" class="bg"></el-col>
     <el-col :span="6" :offset="3" class="form">
