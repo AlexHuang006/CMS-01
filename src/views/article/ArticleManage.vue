@@ -2,6 +2,7 @@
 import { Delete, Edit } from '@element-plus/icons-vue'
 import { ref } from 'vue'
 import ChannelSelect from './components/ChannelSelect.vue'
+import ArticleEdit from './components/ArticleEdit.vue'
 import { artGetListService } from '@/api/article'
 import { formatTime } from '@/utils/format'
 
@@ -12,19 +13,50 @@ const params = ref({
   state: ''
 })
 
+const loading = ref(false)
 const articleList = ref([])
 const total = ref(0)
 
 const getArticleList = async () => {
+  loading.value = true
   const res = await artGetListService(params.value)
   articleList.value = res.data.data
   total.value = res.data.total
+  loading.value = false
 }
 getArticleList()
 
-const onEditArticle = (row) => {
-  console.log(row)
+const onSizeChange = (size) => {
+  params.value.pagenum = 1
+  params.value.pagesize = size
+  getArticleList()
 }
+const onCurrentChange = (page) => {
+  params.value.pagenum = page
+  getArticleList()
+}
+
+const onSearch = () => {
+  params.value.pagenum = 1
+  getArticleList()
+}
+
+const onReset = () => {
+  params.value.pagenum = 1
+  params.value.cate_id = ''
+  params.value.state = ''
+  getArticleList()
+}
+
+const articleEditRef = ref()
+// 编辑新增逻辑
+const onAddArticle = () => {
+  articleEditRef.value.open({})
+}
+const onEditArticle = (row) => {
+  articleEditRef.value.open(row)
+}
+
 const onDeleteArticle = (row) => {
   console.log(row)
 }
@@ -34,7 +66,7 @@ const onDeleteArticle = (row) => {
 <template>
   <page-container title="文章管理">
     <template #extra>
-      <el-button type="primary">发布文章</el-button>
+      <el-button type="primary" @click="onAddArticle">发布文章</el-button>
     </template>
 
     <!-- 表单区域 -->
@@ -49,13 +81,13 @@ const onDeleteArticle = (row) => {
         </el-select>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary">搜索</el-button>
-        <el-button>重置</el-button>
+        <el-button type="primary" @click="onSearch">搜索</el-button>
+        <el-button @click="onReset">重置</el-button>
       </el-form-item>
     </el-form>
 
     <!-- 表格区域 -->
-    <el-table :data="articleList" style="width: 100%">
+    <el-table v-loading = "loading" :data="articleList" style="width: 100%">
       <el-table-column label="文章标题" width="400">
         <template #default="{ row }">
           <el-link type="primary" :underline="false">{{ row.title }}</el-link>
@@ -92,6 +124,21 @@ const onDeleteArticle = (row) => {
       </template>
     </el-table>
 
+    <!-- 分页区域 -->
+    <el-pagination
+      v-model:current-page="params.pagenum"
+      v-model:page-size="params.pagesize"
+      :page-sizes="[2, 3, 4, 5, 10]"
+      layout="jumper, total, sizes, prev, pager, next"
+      background
+      :total="total"
+      @size-change="onSizeChange"
+      @current-change="onCurrentChange"
+      style="margin-top: 20px; justify-content: flex-end"
+    />
+
+    <!-- 弹窗 -->
+    <article-edit ref="articleEditRef"></article-edit>
   </page-container>
 </template>
 
